@@ -159,3 +159,8 @@ data.db
 *_template.db
 *.zip
 proxy_extension*
+
+# Scraper runtime outputs
+output/
+logs/
+*.sqlite

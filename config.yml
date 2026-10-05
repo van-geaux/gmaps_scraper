@@ -1,59 +1,32 @@
-# config.yml
-# support environment variables in .env file
+# CSV-driven Google Maps scraper configuration
 
-# Default to True, change to False to open chrome while scrapping (warning, slow)
-Headless: 
+# The query CSV is provided at runtime:
+# python3 main.py --csvinput queries/dummy_queries.csv
 
-# Default to True
-# Query_search open selenium to get the query result
-# Detailed_search use http.get for every places in the query result
-# Warning: each queries can get up to 120 places, not using proxy for Detailed_search will definitely hit bot detection in no time
-Query_search_proxy: False
-Detailed_search_proxy: 
+# One persistent SQLite file. Each run creates a separate table inside it.
+Database_file: output/gmaps_scraper.sqlite
+Output_folder: output
 
-# Proxy authentication
+# Browser
+Headless: true
+# Selenium is published to the same Linux host where the scraper runs.
+Browser_remote_url: http://localhost:4444
+
+# Optional authenticated proxy for both Chrome and detailed requests.
 Proxy:
-  Domain: ${PROXY_DOMAIN}
+  Enabled: true
+  Scheme: http
+  Host: ${PROXY_HOST}
   Port: ${PROXY_PORT}
   User: ${PROXY_USER}
   Password: ${PROXY_PASSWORD}
 
-# Query
-# must be filled: i.e.restaurants, company registry
-Category: perusahaan
+# Chrome uses the local gateway in the Selenium Docker network. The gateway
+# forwards to the authenticated Proxy settings above.
+Browser_proxy:
+  Enabled: true
+  Scheme: http
+  Host: proxy-gateway
+  Port: 3128
 
-# 'once' or 'loop' through data source based on address level below, currently not implemented yet but dont remove or change this value!
-Scrape_address: loop
-
-# Criteria for address data loop, if all are empty will loop the entirety of address table
-# Enter places name for i.e 'Jawa Barat' in Province or 'Bandung' in City
-Address_level:
-  Province: 
-  City: 
-  District/subdistrict: 
-  Ward/village: 
-
-# default to external if type is not empty
-Data_source:
-  Local:
-    Location: backend/data.db 
-    Csv_location: backend/data_template.csv # will fill csv data to the database
-    Xlsx_location: # will fill xlsx data to the database
-    Address_table_name: randomized_address
-  
-  # currently only support MariaDb
-  External:
-    Type: mariadb
-    Domain: ${SOURCE_EXTERNAL_DOMAIN}
-    Port: ${SOURCE_EXTERNAL_PORT}
-    User: ${SOURCE_EXTERNAL_USER}
-    Password: ${SOURCE_EXTERNAL_PASSWORD}
-    Database_name: scrape_google_map
-    Address_table_name: randomized_address
-
-# log level defaults to info for console and warning for file, this option will set for both
-# debug level will also check for IP rotation per request
-Log_level: 
-
-# not implemented yet
-Is_tor: 
+Log_level: info

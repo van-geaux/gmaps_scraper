@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 
-from src.backend import db_check
 from src.input import input_worker
-from src.logger import *
+from src.logger import logger
 
+import argparse
 import os
 import psutil
 import re
@@ -33,6 +33,14 @@ def env_var_constructor(loader, node):
     return value
 
 def main():
+    parser = argparse.ArgumentParser(description="Scrape Google Maps queries from a CSV file.")
+    parser.add_argument(
+        "--csvinput",
+        required=True,
+        help="Path to a CSV file containing a required query column.",
+    )
+    args = parser.parse_args()
+
     load_dotenv()
     yaml.SafeLoader.add_constructor('!env_var', env_var_constructor)
 
@@ -48,19 +56,16 @@ def main():
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
 
-        db_check(config)
-        input_worker(config)
+        input_worker(config, args.csvinput)
 
     except KeyboardInterrupt:
         logger.info('Script stopped manually.')
-        pass
-        
+    except Exception:
+        logger.exception('Scraper failed.')
+        raise
     finally:
-        # print('\n')
-        # input('Press Enter to exit...: ')
         logger.info('Cleaning processes...')
         terminate_subprocesses()
-        sys.exit()
 
 if __name__ == "__main__":    
     main()
