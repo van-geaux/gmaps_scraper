@@ -25,16 +25,17 @@ table inside one SQLite database, and automatically exports the run to CSV.
    python3 main.py --csvinput queries/dummy_queries.csv
    ```
 
-For the Dockerized Selenium and proxy-gateway workflow:
+For the Dockerized Selenium workflow:
 
 ```bash
 docker compose up -d --build
 python3 main.py --csvinput queries/dummy_queries.csv
 ```
 
-Selenium and the authenticated `proxy-gateway` run in Docker on the same Linux
-machine as the scraper. The scraper runs directly on the host and connects to
-Selenium through `http://localhost:4444`.
+Selenium runs in Docker on the same Linux machine as the scraper. The scraper
+runs directly on the host and connects to Selenium through
+`http://localhost:4444`. Selenium does not depend on the proxy-gateway service,
+so it also starts when no `.env` file or proxy settings are provided.
 
 The gateway keeps proxy credentials away from Chrome. Chrome connects to the
 gateway at `proxy-gateway:3128`, while the gateway forwards traffic through
@@ -67,8 +68,10 @@ requests. Chrome uses the local `proxy-gateway` service in the Docker network,
 which avoids Chrome's authenticated-proxy limitation. Address files, address levels, categories,
 external databases, and manual export menus are not used.
 
-Enable the proxy in `config.yml` and provide credentials through environment
-variables or `.env`:
+The proxy is optional. If `PROXY_HOST` or `PROXY_PORT` is missing, the scraper
+automatically disables both the browser and detailed-request proxy settings and
+runs directly. When using a proxy, provide the following environment variables
+through `.env`:
 
 ```yaml
 Proxy:

@@ -5,6 +5,18 @@ from __future__ import annotations
 from urllib.parse import quote
 
 
+def disable_unconfigured_proxy(config: dict) -> dict:
+    """Disable optional proxy settings when no upstream proxy is configured."""
+    proxy = config.get("Proxy") or {}
+    required = ("Scheme", "Host", "Port")
+    if proxy.get("Enabled") is True and any(not proxy.get(key) for key in required):
+        proxy["Enabled"] = False
+        browser_proxy = config.get("Browser_proxy")
+        if isinstance(browser_proxy, dict):
+            browser_proxy["Enabled"] = False
+    return config
+
+
 def _proxy(config: dict) -> dict:
     proxy = config.get("Proxy") or {}
     if proxy.get("Enabled") is not True:
