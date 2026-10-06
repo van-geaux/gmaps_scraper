@@ -21,9 +21,6 @@ services:
     ports:
       - "4444:4444"
       - "7900:7900"
-    depends_on:
-      proxy-gateway:
-        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://localhost:4444/status || exit 1"]
       interval: 10s

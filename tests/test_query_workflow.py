@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from src.proxy import aiohttp_proxy, proxy_server
+from src.proxy import aiohttp_proxy, disable_unconfigured_proxy, proxy_server
 from src.query_workflow import (
     create_run_name,
     export_table_to_csv,
@@ -82,6 +82,17 @@ class QueryWorkflowTests(unittest.TestCase):
 
     def test_disabled_proxy_returns_none(self):
         self.assertIsNone(aiohttp_proxy({"Proxy": {"Enabled": False}}))
+
+    def test_incomplete_proxy_configuration_disables_browser_and_requests_proxy(self):
+        config = {
+            "Proxy": {"Enabled": True, "Scheme": "http", "Host": "", "Port": ""},
+            "Browser_proxy": {"Enabled": True, "Scheme": "http", "Host": "proxy-gateway", "Port": 3128},
+        }
+
+        self.assertIs(disable_unconfigured_proxy(config), config)
+        self.assertFalse(config["Proxy"]["Enabled"])
+        self.assertFalse(config["Browser_proxy"]["Enabled"])
+        self.assertIsNone(aiohttp_proxy(config))
 
 
 if __name__ == "__main__":
