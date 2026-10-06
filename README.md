@@ -3,6 +3,9 @@
 This scraper reads plain Google Maps searches from a CSV, stores each run in a
 table inside one SQLite database, and automatically exports the run to CSV.
 
+Panduan lengkap penggunaan dalam Bahasa Indonesia tersedia di
+[`docs/PANDUAN_PENGGUNAAN.md`](docs/PANDUAN_PENGGUNAAN.md).
+
 ## Quick start
 
 1. Install dependencies:
